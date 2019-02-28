@@ -33,16 +33,28 @@
 
 fbSmtpUDF is a Firebird UDF that can send SMTP messages.
 
-The UDF can work in 2 ways, you can either send messages directly, or queue messages for sending via another internall managed thread.
+The UDF can work in 2 ways, you can either send messages directly, or queue messages for sending via another internally managed thread.
 
 If you send messages directly you could possibly delay the execution of the SP or trigger whilst communication with remote SMTP server takes place.
 
-Version 1.0.0.0
+Version 1.1.0.0
 
-External Function Definitions:
+Version 1.1.0.0 bug fixes
+=========================
 
+Reply to specifies sender email, not name.
+New external function to specify senders name and email, not just email.
+Updated sample (see below).
+Upgrade to latest C++ toolset
+
+
+
+External Function Definitions
+=============================
 /*
+
 SMTPServerAdd 
+=============
 
 Description: used to add server details, each message being sent requires server details.
 
@@ -69,6 +81,7 @@ MODULE_NAME 'fbSmtpUDF';
 
 
 SMTPServerRemove
+================
 
 Description: Removes an SMTP server details
 
@@ -86,7 +99,9 @@ ENTRY_POINT 'fbSMTPServerRemove'
 MODULE_NAME 'fbSmtpUDF';
 
 
+
 SMTPSendEmail
+=============
 
 Description: Called to send an email via SMTP.
 
@@ -104,7 +119,7 @@ Parameters:
 Returns:
 
 If sendImmediate is 0, then the Global Return Value will be success if the message was succesfully queud for sending, if 
-sendImmediate is any other value Global Return Value will be success if the message was actually send, for any other
+sendImmediate is any other value Global Return Value will be success if the message was actually sent, for any other
 value see Global Return Values below.
 
 Declaration:
@@ -115,8 +130,40 @@ ENTRY_POINT 'fbSMTPMessageSend'
 MODULE_NAME 'fbSmtpUDF';
 
 
+SMTPSendEmailEx
+===============
+
+Description: Called to send an email via SMTP.  Allows users to specify recipient name and email
+
+Parameters:
+	serverID - unique server id obtained by calling SMTPServerAdd
+	id - unique user defined id to identify this email when querying for results
+	priority - 0 is low, 2 is high, anything else is normal priority
+	sendImmediate - 0 is add to queue anything else is sent immediately
+	senderName - name of sender as appearing in the email header on client 
+	senderEmail - sender's email address
+	recipientName - recipient name
+	recipientEmail - recipient email address
+	subject - message subject
+	message - message body
+
+Returns:
+
+If sendImmediate is 0, then the Global Return Value will be success if the message was succesfully queud for sending, if 
+sendImmediate is any other value Global Return Value will be success if the message was actually sent, for any other
+value see Global Return Values below.
+
+Declaration:
+
+DECLARE EXTERNAL FUNCTION SMTPSendEmailEx (BIGINT, BIGINT, INTEGER, INTEGER, CSTRING(100), CSTRING(100), CSTRING(100), CSTRING(100), CSTRING(100), CSTRING(32767))
+RETURNS INTEGER BY VALUE
+ENTRY_POINT 'fbSMTPMessageSendEx'
+MODULE_NAME 'fbSmtpUDF';
+
+
 
 SMTPMessageCount
+================
 
 Description:  Determines how many messages are queued for a database (across all connections)
 
@@ -137,6 +184,7 @@ MODULE_NAME 'fbSmtpUDF';
 
 
 SMTPSendResult
+==============
 
 Description:  Used to obtain the result of a message that has been sent.
 
@@ -159,6 +207,7 @@ MODULE_NAME 'fbSmtpUDF';
 
 
 SMTPSendResultText
+==================
 
 Description:  Used to obtain the result, as a string, if the message failed to send.
 
@@ -177,7 +226,8 @@ ENTRY_POINT 'fbSMTPMessageResultText'
 MODULE_NAME 'fbSmtpUDF';
 
 
-Global Return Values:
+Global Return Values
+====================
 
 Success = 0 -- the operation worked
 
@@ -245,13 +295,9 @@ BEGIN
 
     vImmediate = 1; -- 0 = queue in thread anything else send immediately
 
-	RESULT = SMTPSENDEMAIL(:vServerID, 10, 5, vImmediate, 'account@domain.com', 'account@domain.com', 'user@anotherdomain.com',
+	RESULT = SMTPSENDEMAILEX(:vServerID, 10, 5, vImmediate, 'account@domain.com', 'account@domain.com', 'Another User', 'user@anotherdomain.com',
 		'test from fbudf smtp in FB3', 'this is a test message only');
     MSG = 'Send Email';
-    SUSPEND;
-    
-	SMTPSERVERREMOVE(vServerID);
-    MSG = 'Remove Server';
     SUSPEND;
     
     RESULT = 1;
@@ -281,6 +327,11 @@ BEGIN
         MSG = SMTPSendResultText(vServerID, 10);
         SUSPEND;
     END
+    
+	-- only remove the server when you have finished using it
+	SMTPSERVERREMOVE(vServerID);
+    MSG = 'Remove Server';
+    SUSPEND;
 END^
 
 SET TERM ; ^
@@ -294,7 +345,7 @@ Results:
 
 Add Server	1499859179
 Send Email	0
-Remove Server	0
 Queue Count	0
 Retrieve Send Result	0
 [null]	0
+Remove Server	0

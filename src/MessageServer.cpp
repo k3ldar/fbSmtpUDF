@@ -41,6 +41,11 @@ namespace FBMailUDF
 
 	MessageServer::MessageServer()
 	{
+		
+	}
+
+	MessageServer::MessageServer(const MessageServer &copy)
+	{
 
 	}
 
@@ -57,13 +62,13 @@ namespace FBMailUDF
 
 		switch (securityType)
 		{
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			break;
-		default:
-			securityType = 0;
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+				break;
+			default:
+				securityType = 0;
 		}
 
 		time_t currentTime;
@@ -106,8 +111,8 @@ namespace FBMailUDF
 	}
 
 	EMailResult MessageServer::sendMessage(const FB_BIGINT serverID, const FB_BIGINT id, const std::string &senderName, 
-		const std::string &senderEmail, const std::string &recipient, const std::string &subject, 
-		const std::string &message, const int priority, const bool immediate)
+		const std::string &senderEmail, const std::string &recipientName, const std::string &recipientEmail, 
+		const std::string &subject, const std::string &message, const int priority, const bool immediate)
 	{
 		MailServer *server = nullptr;
 
@@ -127,8 +132,8 @@ namespace FBMailUDF
 		if (server == nullptr)
 			return (EMailResult::InvalidServer);
 
-		FBMailUDF::MailMessage msg = FBMailUDF::MailMessage(*server, id, senderName, senderEmail, recipient, recipient,
-			subject, message, priority);
+		FBMailUDF::MailMessage msg = FBMailUDF::MailMessage(*server, id, senderName, senderEmail, 
+			recipientName, recipientEmail, subject, message, priority);
 
 		FBMailUDF::EMailResult check = msg.canSend();
 

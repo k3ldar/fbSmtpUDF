@@ -54,13 +54,14 @@ namespace FBMailUDF
 		MailSendResultList resultList;
 	public:
 		MessageServer();
+		MessageServer(const MessageServer &copy);
 		~MessageServer();
 		FB_BIGINT addServer(const std::string &serverName, const PortNumber port, const std::string &userName,
 			const std::string &password, const std::string database, int securityType);
 		EMailResult removeServer(FB_BIGINT mailServer);
-		EMailResult sendMessage(const FB_BIGINT serverID, const FB_BIGINT id, const std::string &senderName, 
-			const std::string &senderEmail, const std::string &recipient, const std::string &subject, 
-			const std::string &message, const int priority, const bool immediate);
+		EMailResult sendMessage(const FB_BIGINT serverID, const FB_BIGINT id, const std::string &senderName,
+			const std::string &senderEmail, const std::string &recipientName, const std::string &recipientEmail,
+			const std::string &subject, const std::string &message, const int priority, const bool immediate);
 		int messageCount(const std::string &database, const bool cancelAll, const int sleepDelay);
 		EMailResult messageSendResult(const FB_BIGINT serverID, const FB_BIGINT emailID, const bool eraseMessage,
 			std::string &sendResult, int &errorCode);

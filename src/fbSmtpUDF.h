@@ -49,6 +49,10 @@ extern "C"
 		const int &sendImmediate, const char *senderName, const char *senderEmail, const char *recipient, 
 		const char *subject, const char *message);
 
+	FBUDF_API int fbSMTPMessageSendEx(const FB_BIGINT &serverID, const FB_BIGINT &id, const int &priority,
+		const int &sendImmediate, const char *senderName, const char *senderEmail, const char *recipientName,
+		const char *recipientEmail, const char *subject, const char *message);
+
 	FBUDF_API int fbSMTPMessageResult(const FB_BIGINT &serverID, const FB_BIGINT &emailID, const int &eraseMessage);
 
 	FBUDF_API int fbSMTPMessageResultText(const FB_BIGINT &serverID, const FB_BIGINT &emailID, char *message);

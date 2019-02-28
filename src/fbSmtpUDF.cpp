@@ -42,11 +42,11 @@ BOOL APIENTRY DllMain(HANDLE, DWORD ul_reason_for_call, LPVOID)
 {
 	switch (ul_reason_for_call)
 	{
-	case DLL_PROCESS_ATTACH:
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-	case DLL_PROCESS_DETACH:
-		break;
+		case DLL_PROCESS_ATTACH:
+		case DLL_THREAD_ATTACH:
+		case DLL_THREAD_DETACH:
+		case DLL_PROCESS_DETACH:
+			break;
 	}
 	return TRUE;
 }
@@ -55,7 +55,7 @@ BOOL APIENTRY DllMain(HANDLE, DWORD ul_reason_for_call, LPVOID)
 
 namespace FBMailUDF
 {
-	MessageServer  __messageServerInstance = MessageServer();
+	MessageServer __messageServerInstance = MessageServer();
 }
 
 FBUDF_API FB_BIGINT fbSMTPServerAdd(const int &port, const int &securityType, const char *serverName,
@@ -63,13 +63,13 @@ FBUDF_API FB_BIGINT fbSMTPServerAdd(const int &port, const int &securityType, co
 {
 	try
 	{
-		return (__messageServerInstance.addServer(serverName ? std::string(serverName) : "", port,
+		return FBMailUDF::__messageServerInstance.addServer(serverName ? std::string(serverName) : "", port,
 			userName ? std::string(userName) : "", password ? std::string(password) : "",
-			database ? std::string(database) : "", securityType));
+			database ? std::string(database) : "", securityType);
 	}
 	catch (...)
 	{
-		return (FBMailUDF::EMailResult::GeneralError);
+		return FBMailUDF::EMailResult::GeneralError;
 	}
 }
 
@@ -77,11 +77,11 @@ FBUDF_API int fbSMTPServerRemove(const FB_BIGINT &serverID)
 {
 	try
 	{
-		return (__messageServerInstance.removeServer(serverID));
+		return FBMailUDF::__messageServerInstance.removeServer(serverID);
 	}
 	catch (...)
 	{
-		return (FBMailUDF::EMailResult::GeneralError);
+		return FBMailUDF::EMailResult::GeneralError;
 	}
 }
 
@@ -91,17 +91,34 @@ FBUDF_API int fbSMTPMessageSend(const FB_BIGINT &serverID, const FB_BIGINT &id, 
 {
 	try
 	{
-		return (__messageServerInstance.sendMessage(serverID, id,	senderName ? std::string(senderName) : "",
+		return FBMailUDF::__messageServerInstance.sendMessage(serverID, id,	senderName ? std::string(senderName) : "",
 			senderEmail ? std::string(senderEmail) : "", recipient ? std::string(recipient) : "",
-			subject ? std::string(subject) : "", message ? std::string(message) : "", priority,
-			sendImmediate != 0));
+			recipient ? std::string(recipient) : "", subject ? std::string(subject) : "", 
+			message ? std::string(message) : "", priority, sendImmediate != 0);
 	}
 	catch (...)
 	{
-		return (FBMailUDF::EMailResult::GeneralError);
+		return FBMailUDF::EMailResult::GeneralError;
 	}
-
 }
+
+FBUDF_API int fbSMTPMessageSendEx(const FB_BIGINT &serverID, const FB_BIGINT &id, const int &priority,
+	const int &sendImmediate, const char *senderName, const char *senderEmail, const char *recipientName,
+	const char *recipientEmail, const char *subject, const char *message)
+{
+	try
+	{
+		return FBMailUDF::__messageServerInstance.sendMessage(serverID, id, senderName ? std::string(senderName) : "",
+			senderEmail ? std::string(senderEmail) : "", recipientName ? std::string(recipientName) : "",
+			recipientEmail ? std::string(recipientEmail): "", subject ? std::string(subject) : "", 
+			message ? std::string(message) : "", priority, sendImmediate != 0);
+	}
+	catch (...)
+	{
+		return FBMailUDF::EMailResult::GeneralError;
+	}
+}
+
 
 FBUDF_API int fbSMTPMessageResult(const FB_BIGINT &serverID, const FB_BIGINT &emailID, const int &eraseMessage)
 {
@@ -110,14 +127,14 @@ FBUDF_API int fbSMTPMessageResult(const FB_BIGINT &serverID, const FB_BIGINT &em
 		std::string messageResult = "";
 		int errCode = 0;
 
-		FBMailUDF::EMailResult result = __messageServerInstance.messageSendResult(serverID, emailID,
+		FBMailUDF::EMailResult result = FBMailUDF::__messageServerInstance.messageSendResult(serverID, emailID,
 			eraseMessage != 0, messageResult, errCode);
 
-		return (result);
+		return result;
 	}
 	catch (...)
 	{
-		return (FBMailUDF::EMailResult::GeneralError);
+		return FBMailUDF::EMailResult::GeneralError;
 	}
 }
 
@@ -131,11 +148,11 @@ FBUDF_API int fbSMTPMessageResultText(const FB_BIGINT &serverID, const FB_BIGINT
 		std::string messageResult = "";
 		int errCode = 0;
 
-		FBMailUDF::EMailResult result = __messageServerInstance.messageSendResult(serverID, emailID, 
+		FBMailUDF::EMailResult result = FBMailUDF::__messageServerInstance.messageSendResult(serverID, emailID,
 			true, messageResult, errCode);
 
 		if (result == EMailResult::Success || result == EMailResult::NotFound)
-			return (result);
+			return result;
 
 		if (messageResult.length() > MAX_ERROR_MESSAGE_LENGTH -1)
 		{
@@ -144,11 +161,11 @@ FBUDF_API int fbSMTPMessageResultText(const FB_BIGINT &serverID, const FB_BIGINT
 
 		std::strcpy(message, messageResult.c_str());
 
-		return (errCode);
+		return errCode;
 	}
 	catch (...)
 	{
-		return (FBMailUDF::EMailResult::GeneralError);
+		return FBMailUDF::EMailResult::GeneralError;
 	}
 }
 
@@ -156,10 +173,10 @@ FBUDF_API int fbSMTPMessageCount(const char *database, const int &cancelAll, con
 {
 	try
 	{
-		return (__messageServerInstance.messageCount(database ? std::string(database) : "", cancelAll != 0, sleep));
+		return FBMailUDF::__messageServerInstance.messageCount(database ? std::string(database) : "", cancelAll != 0, sleep);
 	}
 	catch (...)
 	{
-		return (FBMailUDF::EMailResult::GeneralError);
+		return FBMailUDF::EMailResult::GeneralError;
 	}
 }
