@@ -13,3 +13,6 @@ OpenSSL is distributed under a dual licence (https://www.openssl.org/source/lice
 
 
 ** This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/)
+
+
+Thanks also goes to Miloš Hruška for feedback and testing.
