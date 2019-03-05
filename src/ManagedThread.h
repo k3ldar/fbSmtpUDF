@@ -46,7 +46,7 @@
 
 namespace ManagedThreads
 {
-	typedef enum ThreadPriority
+	enum ThreadPriority
 	{
 		AboveNormal = 1,
 		BelowNormal = -1,
@@ -55,7 +55,7 @@ namespace ManagedThreads
 		Critical = 15
 	};
 
-	typedef enum EventType
+	enum EventType
 	{
 		Start,			// thread has started
 		Run,			// thread is about to run/execute (call derived thread Run)

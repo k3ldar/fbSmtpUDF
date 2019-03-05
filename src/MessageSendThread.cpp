@@ -152,7 +152,7 @@ namespace FBMailUDF
 
 			mail.SetSenderName(message.getSenderName().c_str());
 			mail.SetSenderMail(message.getSenderEmail().c_str());
-			mail.SetReplyTo(message.getSenderName().c_str());
+			mail.SetReplyTo(message.getSenderEmail().c_str());
 
 			mail.SetSubject(message.getSubject().c_str());
 			mail.AddRecipient(message.getRecipientEmail().c_str());
