@@ -155,7 +155,7 @@ namespace FBMailUDF
 			mail.SetReplyTo(message.getSenderEmail().c_str());
 
 			mail.SetSubject(message.getSubject().c_str());
-			mail.AddRecipient(message.getRecipientEmail().c_str());
+			mail.AddRecipient(message.getRecipientEmail().c_str(), message.getRecipientName().c_str());
 
 			std::istringstream f(message.getMessage());
 			std::string line;

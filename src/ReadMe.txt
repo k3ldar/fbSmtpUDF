@@ -37,6 +37,13 @@ The UDF can work in 2 ways, you can either send messages directly, or queue mess
 
 If you send messages directly you could possibly delay the execution of the SP or trigger whilst communication with remote SMTP server takes place.
 
+Version 1.3.0.0
+
+Version 1.3.0.0 bug fixes
+=========================
+
+Add recipient name when sending direct email.
+
 Version 1.2.0.0
 
 Version 1.2.0.0 bug fixes
